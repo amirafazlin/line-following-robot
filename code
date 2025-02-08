@@ -54,9 +54,12 @@ void loop() {
   int ldrLeft = analogRead(LDR_LEFT);
   int ldrRight = analogRead(LDR_RIGHT);
 
-  // Map LDR values to motor speeds
-  int leftMotorSpeed = map(ldrLeft, 0, 1023, 50, 255);
-  int rightMotorSpeed = map(ldrRight, 0, 1023, 50, 255);
+  // **Normalize LDR values** to avoid small noise issues
+  int leftMotorSpeed = map(ldrLeft, 300, 1023, 50, 255);
+  int rightMotorSpeed = map(ldrRight, 300, 1023, 50, 255);
+
+  leftMotorSpeed = constrain(leftMotorSpeed, 50, 255);
+  rightMotorSpeed = constrain(rightMotorSpeed, 50, 255);
 
   // Debugging - Print sensor values and motor speed
   Serial.print("LDR Left: "); Serial.print(ldrLeft);
@@ -64,7 +67,7 @@ void loop() {
   Serial.print(" | Motor Left Speed: "); Serial.print(leftMotorSpeed);
   Serial.print(" | Motor Right Speed: "); Serial.println(rightMotorSpeed);
 
-  // LED Control Based on Motor Speed Increase
+  // **LED Logic - Indicate speed changes**
   if (leftMotorSpeed > rightMotorSpeed) {
     digitalWrite(GREEN_LED, HIGH); // Left motor is faster → Green LED ON
     digitalWrite(RED_LED, LOW);
@@ -72,19 +75,19 @@ void loop() {
     digitalWrite(RED_LED, HIGH);   // Right motor is faster → Red LED ON
     digitalWrite(GREEN_LED, LOW);
   } else {
-    digitalWrite(RED_LED, HIGH);   // Both motors equal → Both LEDs ON
-    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(GREEN_LED, LOW);
   }
 
-  // Line Following Logic
+  // **Movement Logic - Adjust for LDR Control**
   if (middleSensor == 0) {
-    moveForward(leftMotorSpeed, rightMotorSpeed);  // Follow the line
+    moveForward(leftMotorSpeed, rightMotorSpeed); // Move based on light
   } else if (leftSensor == 0) {
-    turnLeft();     // Correct left
+    turnLeft(); // Correct left
   } else if (rightSensor == 0) {
-    turnRight();    // Correct right
+    turnRight(); // Correct right
   } else {
-    stopMotors();   // Stop when no line detected
+    stopMotors(); // Stop when no line detected
   }
 
   delay(100);
@@ -100,24 +103,24 @@ void moveForward(int leftSpeed, int rightSpeed) {
   analogWrite(ENB, rightSpeed); // Adjust right motor speed
 }
 
-// Function to turn left
+// Function to turn left with LDR influence
 void turnLeft() {
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(ENA, 100); // Reduce left motor speed
-  analogWrite(ENB, 150);
+  analogWrite(ENA, 80); // Slower left turn
+  analogWrite(ENB, 180);
 }
 
-// Function to turn right
+// Function to turn right with LDR influence
 void turnRight() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  analogWrite(ENA, 150);
-  analogWrite(ENB, 100); // Reduce right motor speed
+  analogWrite(ENA, 180);
+  analogWrite(ENB, 80); // Slower right turn
 }
 
 // Function to stop motors
