@@ -54,73 +54,78 @@ void loop() {
   int ldrLeft = analogRead(LDR_LEFT);
   int ldrRight = analogRead(LDR_RIGHT);
 
-  // **Normalize LDR values** to avoid small noise issues
-  int leftMotorSpeed = map(ldrLeft, 300, 1023, 50, 255);
-  int rightMotorSpeed = map(ldrRight, 300, 1023, 50, 255);
-
-  leftMotorSpeed = constrain(leftMotorSpeed, 50, 255);
-  rightMotorSpeed = constrain(rightMotorSpeed, 50, 255);
-
-  // Debugging - Print sensor values and motor speed
+  // Debugging - Print sensor values
   Serial.print("LDR Left: "); Serial.print(ldrLeft);
   Serial.print(" | LDR Right: "); Serial.print(ldrRight);
-  Serial.print(" | Motor Left Speed: "); Serial.print(leftMotorSpeed);
-  Serial.print(" | Motor Right Speed: "); Serial.println(rightMotorSpeed);
+  Serial.print(" | IR Left: "); Serial.print(leftSensor);
+  Serial.print(" | IR Middle: "); Serial.print(middleSensor);
+  Serial.print(" | IR Right: "); Serial.println(rightSensor);
 
-  // **LED Logic - Indicate speed changes**
-  if (leftMotorSpeed > rightMotorSpeed) {
-    digitalWrite(GREEN_LED, HIGH); // Left motor is faster → Green LED ON
-    digitalWrite(RED_LED, LOW);
-  } else if (rightMotorSpeed > leftMotorSpeed) {
-    digitalWrite(RED_LED, HIGH);   // Right motor is faster → Red LED ON
-    digitalWrite(GREEN_LED, LOW);
+  // Check if the robot is OFF the black line (all sensors detect white)
+  if (leftSensor == 1 && middleSensor == 1 && rightSensor == 1) {
+    followLight(ldrLeft, ldrRight);  // Follow light when off the line
   } else {
-    digitalWrite(RED_LED, LOW);
-    digitalWrite(GREEN_LED, LOW);
-  }
-
-  // **Movement Logic - Adjust for LDR Control**
-  if (middleSensor == 0) {
-    moveForward(leftMotorSpeed, rightMotorSpeed); // Move based on light
-  } else if (leftSensor == 0) {
-    turnLeft(); // Correct left
-  } else if (rightSensor == 0) {
-    turnRight(); // Correct right
-  } else {
-    stopMotors(); // Stop when no line detected
+    followLine(leftSensor, middleSensor, rightSensor);  // Follow line normally
   }
 
   delay(100);
 }
 
-// Function to move forward with LDR-based speed control
+// Function to follow the black line using IR sensors
+void followLine(int leftSensor, int middleSensor, int rightSensor) {
+  if (middleSensor == 0) {
+    moveForward(200, 200);  // Move forward normally
+  } else if (leftSensor == 0) {
+    turnLeft();     // Turn left to adjust
+  } else if (rightSensor == 0) {
+    turnRight();    // Turn right to adjust
+  } else {
+    stopMotors();   // Stop if no valid path (this shouldn't happen)
+  }
+}
+
+// Function to follow light when no black line is detected
+void followLight(int ldrLeft, int ldrRight) {
+  int leftMotorSpeed = map(ldrLeft, 0, 1023, 50, 255);
+  int rightMotorSpeed = map(ldrRight, 0, 1023, 50, 255);
+
+  if (ldrLeft > ldrRight) {
+    turnLeft();  // If left LDR detects more light, turn left
+  } else if (ldrRight > ldrLeft) {
+    turnRight(); // If right LDR detects more light, turn right
+  } else {
+    moveForward(leftMotorSpeed, rightMotorSpeed);  // Move forward towards light
+  }
+}
+
+// Function to move forward
 void moveForward(int leftSpeed, int rightSpeed) {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(ENA, leftSpeed);  // Adjust left motor speed
-  analogWrite(ENB, rightSpeed); // Adjust right motor speed
+  analogWrite(ENA, leftSpeed);
+  analogWrite(ENB, rightSpeed);
 }
 
-// Function to turn left with LDR influence
+// Function to turn left
 void turnLeft() {
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(ENA, 80); // Slower left turn
-  analogWrite(ENB, 180);
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 150);
 }
 
-// Function to turn right with LDR influence
+// Function to turn right
 void turnRight() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  analogWrite(ENA, 180);
-  analogWrite(ENB, 80); // Slower right turn
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 100);
 }
 
 // Function to stop motors
