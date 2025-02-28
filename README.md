@@ -48,7 +48,7 @@ Tuning the PID parameters (Kp, Ki, Kd) allows the robot to follow the line with 
 
 ![circuit_image](https://github.com/user-attachments/assets/4c5dcb79-98a3-4f0e-a9c0-03a800c1d9a9)
 
-2. Upload the Arduino code with PID control to the Nano using the Arduino IDE.
+2. Upload the Arduino code with PID control to the Arduino Nano using the Arduino IDE.
 3. Place the robot on a track with a distinct line.
 4. Power on the robot and watch it follow the line smoothly and accurately!
 
