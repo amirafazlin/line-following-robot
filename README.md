@@ -10,7 +10,7 @@ This project is a line-following robot built using an Arduino Nano, IR sensors, 
 - **3 IR Sensor Modules**
 - **2 x 11.1V Lithium Battery**
 - **Single Pole Single Throw (SPST) Switch**
-- **Breadboard and Jumper Wires**
+- **Jumper Wires**
 
 ## Circuit Diagram
 The circuit connects the components as follows:
