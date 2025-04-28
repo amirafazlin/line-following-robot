@@ -4,13 +4,14 @@
 This project is a line-following robot built using an Arduino Nano, IR sensors, and a motor driver module, with enhanced performance through PID (Proportional-Integral-Derivative) control. The robot follows a dark or light line on a contrasting surface by reading signals from the IR sensors and adjusting motor speeds for precise movement.
 
 ## Components Used
-- **Arduino Nano** (You can replace it with Arduino Uno if needed)
+- **Arduino UNO** (You can replace it with Arduino NANO if needed)
 - **2 DC Motors with Wheels**
 - **L298N Motor Driver Module**
-- **3 IR Sensor Modules**
-- **2 x 11.1V Lithium Battery**
+- **2 IR Sensor Modules**
+- **7 - 12V Lithium Battery**
 - **Single Pole Single Throw (SPST) Switch**
 - **Jumper Wires**
+- **Breadboard**
 
 ## Circuit Diagram
 The circuit connects the components as follows:
@@ -19,9 +20,8 @@ The circuit connects the components as follows:
 - **L298N Motor Driver**:
   - Input Pins: Connected to Arduino's digital output pins
   - Output Pins: Connected to DC Motors
-  - Power Supply: Powered by 9V batteries
+  - Power Supply: Powered by 7 - 12V batteries
 - **DC Motors**: Connected to L298N's output
-- **Power Supply**: Two 11.1V batteries wired to both the motor driver and the Arduino
 
 ## How It Works
 - The IR sensors detect the line and send signals to the Arduino.
@@ -46,7 +46,7 @@ Tuning the PID parameters (Kp, Ki, Kd) allows the robot to follow the line with 
 ## Setup and Installation
 1. Assemble the circuit as shown in the diagram.
 
-![circuit_image](https://github.com/user-attachments/assets/4c5dcb79-98a3-4f0e-a9c0-03a800c1d9a9)
+![LineFollwerRobot](https://github.com/user-attachments/assets/2c17195d-4052-4a5a-937a-0abc6c311854)
 
 2. Upload the Arduino code with PID control to the Arduino Nano using the Arduino IDE.
 3. Place the robot on a track with a distinct line.
@@ -54,7 +54,5 @@ Tuning the PID parameters (Kp, Ki, Kd) allows the robot to follow the line with 
 
 ## Troubleshooting
 - Ensure IR sensors are properly calibrated.
-- Tune the PID parameters (Kp, Ki, Kd) for optimal performance.
 - Check motor connections and power supply.
 - Confirm correct wiring between Arduino, sensors, and motor driver.
-
