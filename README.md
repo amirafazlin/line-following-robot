@@ -1,7 +1,7 @@
-# Line-Following Robot with PID Control using Kp, Kd, Ki
+# Line-Following Robot 
 
 ## Overview
-This project is a line-following robot built using an Arduino Nano, IR sensors, and a motor driver module, with enhanced performance through PID (Proportional-Integral-Derivative) control. The robot follows a dark or light line on a contrasting surface by reading signals from the IR sensors and adjusting motor speeds for precise movement.
+This project is a line-following robot built using an Arduino Nano, IR sensors, and a motor driver module. The robot follows a dark or light line on a contrasting surface by reading signals from the IR sensors and adjusting motor speeds for precise movement.
 
 ## Components Used
 - **Arduino UNO** (You can replace it with Arduino NANO if needed)
@@ -24,18 +24,14 @@ The circuit connects the components as follows:
 - **DC Motors**: Connected to L298N's output
 
 ## How It Works
-- The IR sensors detect the line and send signals to the Arduino.
-- The Arduino implements a PID control algorithm to minimize line deviation.
-- Based on the PID output, the Arduino sends commands to the L298N motor driver.
-- The motor driver controls the speed and direction of the DC motors, ensuring smooth and accurate line-following behavior.
-
-## PID Control Explanation
-PID control helps the robot adjust its speed and direction more efficiently by considering:
-- **Proportional (P)**: How far the robot is from the line.
-- **Integral (I)**: Accumulated past errors to correct steady-state errors.
-- **Derivative (D)**: Predicts future error to minimize overshooting.
-
-Tuning the PID parameters (Kp, Ki, Kd) allows the robot to follow the line with greater stability and accuracy.
+- The IR sensors detect the line (black line on white surface) and send signals (HIGH/LOW) to the Arduino.
+- The Arduino reads the sensor signals and makes simple decisions:
+  (i) If both sensors detect black, the robot moves forward.
+  (ii) If left sensor detects black and right sensor detects white, the robot turns left.
+  (iii) If right sensor detects black and left sensor detects white, the robot turns right.
+  (iv) If both sensors detect white, the robot stops.
+  (v) The Arduino sends basic control signals to the L298N motor driver.
+- The motor driver drives the DC motors accordingly, allowing the robot to follow the line.
 
 ## Code Overview
 - Reads input from the IR sensors.
