@@ -1,137 +1,105 @@
-// Motor Driver (L298N) Pins
-#define ENA 5  // Speed control for left motor
-#define ENB 10 // Speed control for right motor
-#define IN1 9  // Left motor forward
-#define IN2 8  // Left motor backward
-#define IN3 7  // Right motor forward
-#define IN4 6  // Right motor backward
+#define IR_SENSOR_RIGHT 11
+#define IR_SENSOR_LEFT 12
+#define MOTOR_SPEED 180
 
-// IR Sensor Pins (for line following)
-#define LEFT_IR A0
-#define MIDDLE_IR A1
-#define RIGHT_IR A2
+//Right motor
+int enableRightMotor=6;
+int rightMotorPin1=7;
+int rightMotorPin2=8;
 
-// LDR Sensor Pins (light detection)
-#define LDR_LEFT A3  // Left-side LDR
-#define LDR_RIGHT A4 // Right-side LDR
+//Left motor
+int enableLeftMotor=5;
+int leftMotorPin1=9;
+int leftMotorPin2=10;
 
-// LED Pins
-#define RED_LED 11   // LED for right motor speed increase
-#define GREEN_LED 12 // LED for left motor speed increase
+void setup()
+{
+  //The problem with TT gear motors is that, at very low pwm value it does not even rotate.
+  //If we increase the PWM value then it rotates faster and our robot is not controlled in that speed and goes out of line.
+  //For that we need to increase the frequency of analogWrite.
+  //Below line is important to change the frequency of PWM signal on pin D5 and D6
+  //Because of this, motor runs in controlled manner (lower speed) at high PWM value.
+  //This sets frequecny as 7812.5 hz.
+  TCCR0B = TCCR0B & B11111000 | B00000010 ;
+  
+  // put your setup code here, to run once:
+  pinMode(enableRightMotor, OUTPUT);
+  pinMode(rightMotorPin1, OUTPUT);
+  pinMode(rightMotorPin2, OUTPUT);
+  
+  pinMode(enableLeftMotor, OUTPUT);
+  pinMode(leftMotorPin1, OUTPUT);
+  pinMode(leftMotorPin2, OUTPUT);
 
-// Light Thresholds
-#define DARK_THRESHOLD 300   // Below this → Dark
-#define BRIGHT_THRESHOLD 1000 // Above this → Bright
-
-void setup() {
-  // Set motor control pins as OUTPUT
-  pinMode(ENA, OUTPUT);
-  pinMode(ENB, OUTPUT);
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
-
-  // Set LED pins as OUTPUT
-  pinMode(RED_LED, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-
-  // Set IR sensor pins as INPUT
-  pinMode(LEFT_IR, INPUT);
-  pinMode(MIDDLE_IR, INPUT);
-  pinMode(RIGHT_IR, INPUT);
-
-  Serial.begin(9600); // Start Serial Monitor
+  pinMode(IR_SENSOR_RIGHT, INPUT);
+  pinMode(IR_SENSOR_LEFT, INPUT);
+  rotateMotor(0,0);   
 }
 
-void loop() {
-  // Read IR sensor values
-  int leftSensor = digitalRead(LEFT_IR);
-  int middleSensor = digitalRead(MIDDLE_IR);
-  int rightSensor = digitalRead(RIGHT_IR);
 
-  // Read LDR values
-  int ldrLeft = analogRead(LDR_LEFT);
-  int ldrRight = analogRead(LDR_RIGHT);
+void loop()
+{
 
-  // Debugging - Print sensor values
-  Serial.print("LDR Left: "); Serial.print(ldrLeft);
-  Serial.print(" | LDR Right: "); Serial.print(ldrRight);
-  Serial.print(" | IR Left: "); Serial.print(leftSensor);
-  Serial.print(" | IR Middle: "); Serial.print(middleSensor);
-  Serial.print(" | IR Right: "); Serial.println(rightSensor);
+  int rightIRSensorValue = digitalRead(IR_SENSOR_RIGHT);
+  int leftIRSensorValue = digitalRead(IR_SENSOR_LEFT);
 
-  // Check if the robot is OFF the black line (all sensors detect white)
-  if (leftSensor == 1 && middleSensor == 1 && rightSensor == 1) {
-    followLight(ldrLeft, ldrRight);  // Follow light when off the line
-  } else {
-    followLine(leftSensor, middleSensor, rightSensor);  // Follow line normally
+  //If none of the sensors detects black line, then go straight
+  if (rightIRSensorValue == LOW && leftIRSensorValue == LOW)
+  {
+    rotateMotor(MOTOR_SPEED, MOTOR_SPEED);
   }
-
-  delay(100);
-}
-
-// Function to follow the black line using IR sensors
-void followLine(int leftSensor, int middleSensor, int rightSensor) {
-  if (middleSensor == 0) {
-    moveForward(200, 200);  // Move forward normally
-  } else if (leftSensor == 0) {
-    turnLeft();     // Turn left to adjust
-  } else if (rightSensor == 0) {
-    turnRight();    // Turn right to adjust
-  } else {
-    stopMotors();   // Stop if no valid path (this shouldn't happen)
+  //If right sensor detects black line, then turn right
+  else if (rightIRSensorValue == HIGH && leftIRSensorValue == LOW )
+  {
+      rotateMotor(-MOTOR_SPEED, MOTOR_SPEED); 
+  }
+  //If left sensor detects black line, then turn left  
+  else if (rightIRSensorValue == LOW && leftIRSensorValue == HIGH )
+  {
+      rotateMotor(MOTOR_SPEED, -MOTOR_SPEED); 
+  } 
+  //If both the sensors detect black line, then stop 
+  else 
+  {
+    rotateMotor(0, 0);
   }
 }
 
-// Function to follow light when no black line is detected
-void followLight(int ldrLeft, int ldrRight) {
-  int leftMotorSpeed = map(ldrLeft, 0, 1023, 50, 255);
-  int rightMotorSpeed = map(ldrRight, 0, 1023, 50, 255);
 
-  if (ldrLeft > ldrRight) {
-    turnLeft();  // If left LDR detects more light, turn left
-  } else if (ldrRight > ldrLeft) {
-    turnRight(); // If right LDR detects more light, turn right
-  } else {
-    moveForward(leftMotorSpeed, rightMotorSpeed);  // Move forward towards light
+void rotateMotor(int rightMotorSpeed, int leftMotorSpeed)
+{
+  
+  if (rightMotorSpeed < 0)
+  {
+    digitalWrite(rightMotorPin1,LOW);
+    digitalWrite(rightMotorPin2,HIGH);    
   }
-}
+  else if (rightMotorSpeed > 0)
+  {
+    digitalWrite(rightMotorPin1,HIGH);
+    digitalWrite(rightMotorPin2,LOW);      
+  }
+  else
+  {
+    digitalWrite(rightMotorPin1,LOW);
+    digitalWrite(rightMotorPin2,LOW);      
+  }
 
-// Function to move forward
-void moveForward(int leftSpeed, int rightSpeed) {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  analogWrite(ENA, leftSpeed);
-  analogWrite(ENB, rightSpeed);
-}
-
-// Function to turn left
-void turnLeft() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  analogWrite(ENA, 100);
-  analogWrite(ENB, 150);
-}
-
-// Function to turn right
-void turnRight() {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  analogWrite(ENA, 150);
-  analogWrite(ENB, 100);
-}
-
-// Function to stop motors
-void stopMotors() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+  if (leftMotorSpeed < 0)
+  {
+    digitalWrite(leftMotorPin1,LOW);
+    digitalWrite(leftMotorPin2,HIGH);    
+  }
+  else if (leftMotorSpeed > 0)
+  {
+    digitalWrite(leftMotorPin1,HIGH);
+    digitalWrite(leftMotorPin2,LOW);      
+  }
+  else 
+  {
+    digitalWrite(leftMotorPin1,LOW);
+    digitalWrite(leftMotorPin2,LOW);      
+  }
+  analogWrite(enableRightMotor, abs(rightMotorSpeed));
+  analogWrite(enableLeftMotor, abs(leftMotorSpeed));    
 }
