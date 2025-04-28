@@ -34,10 +34,10 @@ The circuit connects the components as follows:
 - The motor driver drives the DC motors accordingly, allowing the robot to follow the line.
 
 ## Code Overview
-- Reads input from the IR sensors.
-- Computes the error from the line position.
-- Applies the PID algorithm to determine motor speed adjustments.
-- Controls motor speed and direction through the L298N driver.
+- Reads input signals from the left and right IR sensors.
+- Determines the robot’s movement direction based on the sensor readings.
+- Commands the motors to move forward, turn left, turn right, or stop accordingly.
+- Controls motor direction and speed through the L298N motor driver.
 
 ## Setup and Installation
 1. Assemble the circuit as shown in the diagram.
