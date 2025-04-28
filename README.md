@@ -44,7 +44,7 @@ The circuit connects the components as follows:
 
 ![LineFollwerRobot](https://github.com/user-attachments/assets/2c17195d-4052-4a5a-937a-0abc6c311854)
 
-2. Upload the Arduino code with PID control to the Arduino Nano using the Arduino IDE.
+2. Upload the Arduino code to Arduino UNO using the Arduino IDE.
 3. Place the robot on a track with a distinct line.
 4. Power on the robot and watch it follow the line smoothly and accurately!
 
