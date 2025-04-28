@@ -26,11 +26,11 @@ The circuit connects the components as follows:
 ## How It Works
 - The IR sensors detect the line (black line on white surface) and send signals (HIGH/LOW) to the Arduino.
 - The Arduino reads the sensor signals and makes simple decisions:
-  (i) If both sensors detect black, the robot moves forward.
-  (ii) If left sensor detects black and right sensor detects white, the robot turns left.
-  (iii) If right sensor detects black and left sensor detects white, the robot turns right.
-  (iv) If both sensors detect white, the robot stops.
-  (v) The Arduino sends basic control signals to the L298N motor driver.
+  - If both sensors detect black, the robot moves forward.
+  - If left sensor detects black and right sensor detects white, the robot turns left.
+  - If right sensor detects black and left sensor detects white, the robot turns right.
+  - If both sensors detect white, the robot stops.
+  - The Arduino sends basic control signals to the L298N motor driver.
 - The motor driver drives the DC motors accordingly, allowing the robot to follow the line.
 
 ## Code Overview
